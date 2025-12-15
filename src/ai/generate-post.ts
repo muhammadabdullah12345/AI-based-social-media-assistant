@@ -1,29 +1,28 @@
-// import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-
-// export async function generatePost(topic: string): Promise<string> {
-//   const model = new ChatGoogleGenerativeAI({
-//     model: "gemini-2.5-pro",
-//     apiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY,
-//   });
-
-//   const response = await model.invoke([
-//     [
-//       "system",
-//       "You are a helpful assistant that generates a short paragraph post on a given topic.Generate the post about the user's topic. Make sure the post is informative, engaging, and well-structured.",
-//     ],
-//     ["human", topic],
-//   ]);
-
-//   const res = response.text;
-//   // console.log(res);
-//   return res;
-// }
-//  generationConfig: { response_mime_type: "application/json",response_schema: },
 import { GoogleGenAI } from "@google/genai";
-const Gemini_api_key = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+import axios from "axios";
+export const Gemini_api_key = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 const ai = new GoogleGenAI({
   apiKey: Gemini_api_key,
 });
+
+// export async function generateImage(prompt: string) {
+//   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+
+//   const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0:generateImage?key=${apiKey}`;
+
+//   const body = {
+//     prompt: {
+//       text: prompt,
+//     },
+//   };
+
+//   const response = await axios.post(url, body);
+
+//   // Extract Base64
+//   const imageBase64 = response.data.images[0].imageBytes;
+
+//   return imageBase64;
+// }
 
 export async function generatePost(
   topic: string,
@@ -49,18 +48,23 @@ export async function generatePost(
     },
   });
 
-  // console.log(JSON.parse(response));
-  // console.log(response);
-  // console.log(response.text);
+  console.log(response);
+  console.log(response.text);
   const res = JSON.parse(response.text || "");
-  const imageRes = await ai.models.generateImages({
-    model: "imagen-3.0-generate-002",
-    prompt: res.image_prompt,
-    config: {
-      numberOfImages: 1,
-    },
-  });
+  // const imageRes = await ai.models.generateImages({
+  //   model: "imagen-3.0",
+  //   prompt: res.image_prompt,
+  //   config: {
+  //     numberOfImages: 1,
+  //   },
+  // });
   console.log(res);
-  console.log(imageRes);
+
+  // const imageBase64 = await generateImage(res.image_prompt);
+
+  // return {
+  //   ...res,
+  //   image: imageBase64,
+  // };
   return res;
 }

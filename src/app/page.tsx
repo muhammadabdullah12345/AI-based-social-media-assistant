@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { generatePost } from "../ai/generate-post";
+import { generateImage } from "../ai/generateImage";
 
 export default function page() {
-  const [topic, setTopic] = useState("");
-  const [platform, setPlatform] = useState("");
-  const [targetAudience, setTargetAudience] = useState("");
-  const [tone, setTone] = useState("");
+  const [topic, setTopic] = useState("traveling");
+  const [platform, setPlatform] = useState("instagram");
+  const [targetAudience, setTargetAudience] = useState("funny people");
+  const [tone, setTone] = useState("funny");
   const [emojis, setEmojis] = useState(false);
   const [emojiStatus, setEmojiStatus] = useState("");
   const [post, setPost] = useState<{
@@ -20,7 +21,7 @@ export default function page() {
   //   setPost(generatedPost);
   // }
 
-  async function handleGenerate() {
+  async function handleGeneratePost() {
     const generatedPost = await generatePost(
       topic,
       targetAudience,
@@ -35,6 +36,11 @@ export default function page() {
       setEmojiStatus("add");
     } else setEmojiStatus("not add");
   }, [emojis]);
+
+  // async function handleGenerateImage() {
+  //   const generatedImage = await generateImage();
+  //   return generatedImage;
+  // }
 
   return (
     <div className="text-3xl font-bold min-h-screen  bg-amber-800 text-center flex flex-col justify-center items-center">
@@ -66,7 +72,7 @@ export default function page() {
           onChange={(e) => setTargetAudience(e.target.value)}
         />
       </div>
-      <div className="flex items-center justify-center gap-2 mt-5">  
+      <div className="flex items-center justify-center gap-2 mt-5">
         <input
           type="text"
           placeholder="Tone"
@@ -81,7 +87,7 @@ export default function page() {
         </label>
         <input
           type="checkbox"
-          className=" text-lg outline-none font-medium"
+          className=" text-lg outline-none font-medium cursor-pointer"
           onChange={(e) => setEmojis(e.target.checked)}
           checked={emojis}
         />
@@ -89,15 +95,22 @@ export default function page() {
       <button
         className="rounded-lg border border-amber-400 p-2 cursor-pointer text-sm hover:bg-amber-400 hover:text-black transition-all font-semibold mt-5
         "
-        onClick={handleGenerate}
+        onClick={handleGeneratePost}
       >
         Generate
+      </button>
+      <button
+        className="rounded-lg border border-amber-400 p-2 cursor-pointer text-sm hover:bg-amber-400 hover:text-black transition-all font-semibold mt-5
+        "
+      >
+        Image
       </button>
       <div className="w-2/3 mt-10 text-lg text-justify font-normal">
         {post && (
           <>
             <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
             <p>{post.content}</p>
+            <img src={`data:image/png;base64,${post.image}`} />
           </>
         )}
       </div>
