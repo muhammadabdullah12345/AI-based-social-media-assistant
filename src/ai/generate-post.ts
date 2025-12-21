@@ -1,6 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import axios from "axios";
-export const Gemini_api_key = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+const Gemini_api_key = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 const ai = new GoogleGenAI({
   apiKey: Gemini_api_key,
 });

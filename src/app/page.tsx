@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { generatePost } from "../ai/generate-post";
-import { generateImage } from "../ai/generateImage";
+// import { generatePost } from "../ai/generate-post";
+// import { generateImage } from "../ai/generateImage";
 
 export default function page() {
   const [topic, setTopic] = useState("traveling");
@@ -15,6 +15,7 @@ export default function page() {
     title: string;
     content: string;
     image_prompt: string;
+    image?: string;
   } | null>(null);
   // async function handleGenerate() {
   //   const generatedPost = await generatePost(topic);
@@ -22,15 +23,50 @@ export default function page() {
   // }
 
   async function handleGeneratePost() {
-    const generatedPost = await generatePost(
-      topic,
-      targetAudience,
-      tone,
-      platform,
-      emojiStatus
-    );
-    setPost(generatedPost);
+    const res = await fetch("/api/generate-post", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic,
+        targetAudience,
+        tone,
+        platform,
+        emojiStatus,
+      }),
+    });
+
+    const data = await res.json();
+    setPost(data);
   }
+  async function handleGenerateImage() {
+    if (!post?.image_prompt) return;
+
+    const res = await fetch("/api/generate-image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: post.image_prompt,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error("Image API failed");
+      return;
+    }
+
+    const data = await res.json();
+    console.log(data);
+
+    setPost((prev) =>
+      prev
+        ? {
+            ...prev,
+            image: data.image,
+          }
+        : prev
+    );
+  }
+
   useEffect(() => {
     if (emojis) {
       setEmojiStatus("add");
@@ -100,17 +136,24 @@ export default function page() {
         Generate
       </button>
       <button
-        className="rounded-lg border border-amber-400 p-2 cursor-pointer text-sm hover:bg-amber-400 hover:text-black transition-all font-semibold mt-5
-        "
+        onClick={handleGenerateImage}
+        disabled={!post}
+        className="rounded-lg border border-amber-400 p-2 text-sm font-semibold mt-5 cursor-pointer  hover:bg-amber-400
+             disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Image
       </button>
-      <div className="w-2/3 mt-10 text-lg text-justify font-normal">
+      <div className="w-2/3 mt-10 text-lg text-justify font-normal flex flex-col items-center justify-center gap-8">
         {post && (
           <>
             <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
             <p>{post.content}</p>
-            <img src={`data:image/png;base64,${post.image}`} />
+            {post.image && (
+              <img
+                src={`data:image/png;base64,${post.image}`}
+                className="h-80 w-80"
+              />
+            )}
           </>
         )}
       </div>
