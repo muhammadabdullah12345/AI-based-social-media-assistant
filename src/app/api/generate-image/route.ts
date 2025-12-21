@@ -17,12 +17,16 @@ export async function POST(req: Request) {
       contents: [
         {
           role: "user",
-          parts: [{ text: prompt }],
+          parts: [
+            {
+              text: `Create a nano banana image realistic and aesthetic with this prompt:${prompt}`,
+            },
+          ],
         },
       ],
     });
 
-    console.log("GEMINI RESPONSE:", JSON.stringify(response, null, 2));
+    // console.log("GEMINI RESPONSE:", JSON.stringify(response, null, 2));
 
     const candidate = response.candidates?.[0];
 

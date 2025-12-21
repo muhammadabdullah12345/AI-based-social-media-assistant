@@ -143,7 +143,7 @@ export default function page() {
       >
         Image
       </button>
-      <div className="w-2/3 mt-10 text-lg text-justify font-normal flex flex-col items-center justify-center gap-8">
+      <div className="w-2/3 mt-10 text-lg text-justify font-normal flex flex-col items-center justify-center gap-8 mb-4">
         {post && (
           <>
             <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
