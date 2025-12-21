@@ -19,7 +19,7 @@ export async function POST(req: Request) {
           role: "user",
           parts: [
             {
-              text: `Create a nano banana image realistic and aesthetic with this prompt:${prompt}`,
+              text: `Create a realistic and aesthetic image with this prompt:${prompt}`,
             },
           ],
         },

@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-// import { generatePost } from "../ai/generate-post";
-// import { generateImage } from "../ai/generateImage";
 
-export default function page() {
-  const [topic, setTopic] = useState("traveling");
+export default function Page() {
+  const [isGeneratingPost, setIsGeneratingPost] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [topic, setTopic] = useState("travelling");
   const [platform, setPlatform] = useState("instagram");
-  const [targetAudience, setTargetAudience] = useState("funny people");
-  const [tone, setTone] = useState("funny");
+  const [targetAudience, setTargetAudience] = useState("normal people");
+  const [tone, setTone] = useState("professional");
   const [emojis, setEmojis] = useState(false);
   const [emojiStatus, setEmojiStatus] = useState("");
   const [post, setPost] = useState<{
@@ -17,146 +17,203 @@ export default function page() {
     image_prompt: string;
     image?: string;
   } | null>(null);
-  // async function handleGenerate() {
-  //   const generatedPost = await generatePost(topic);
-  //   setPost(generatedPost);
-  // }
 
   async function handleGeneratePost() {
-    const res = await fetch("/api/generate-post", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        topic,
-        targetAudience,
-        tone,
-        platform,
-        emojiStatus,
-      }),
-    });
+    try {
+      setIsGeneratingPost(true);
 
-    const data = await res.json();
-    setPost(data);
+      const res = await fetch("/api/generate-post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic,
+          targetAudience,
+          tone,
+          platform,
+          emojiStatus,
+        }),
+      });
+
+      const data = await res.json();
+      setPost(data);
+    } catch (error) {
+      console.error("Post generation failed", error);
+    } finally {
+      setIsGeneratingPost(false);
+    }
   }
+
   async function handleGenerateImage() {
     if (!post?.image_prompt) return;
 
-    const res = await fetch("/api/generate-image", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prompt: post.image_prompt,
-      }),
-    });
+    try {
+      setIsGeneratingImage(true);
 
-    if (!res.ok) {
-      console.error("Image API failed");
-      return;
+      const res = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: post.image_prompt,
+        }),
+      });
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      setPost((prev) =>
+        prev
+          ? {
+              ...prev,
+              image: data.image,
+            }
+          : prev
+      );
+    } catch (error) {
+      console.error("Image generation failed", error);
+    } finally {
+      setIsGeneratingImage(false);
     }
-
-    const data = await res.json();
-    console.log(data);
-
-    setPost((prev) =>
-      prev
-        ? {
-            ...prev,
-            image: data.image,
-          }
-        : prev
-    );
   }
 
   useEffect(() => {
-    if (emojis) {
-      setEmojiStatus("add");
-    } else setEmojiStatus("not add");
+    setEmojiStatus(emojis ? "add" : "not add");
   }, [emojis]);
 
-  // async function handleGenerateImage() {
-  //   const generatedImage = await generateImage();
-  //   return generatedImage;
-  // }
-
   return (
-    <div className="text-3xl font-bold min-h-screen  bg-amber-800 text-center flex flex-col justify-center items-center">
-      Post Generator
-      <div className="flex items-center justify-center gap-2 mt-5">
-        <input
-          type="text"
-          placeholder="topic name"
-          className="border-b text-2xl outline-none font-medium"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-        />
-      </div>
-      <div className="flex items-center justify-center gap-2 mt-5">
-        <input
-          type="text"
-          placeholder="Platform"
-          className="border-b text-2xl outline-none font-medium"
-          value={platform}
-          onChange={(e) => setPlatform(e.target.value)}
-        />
-      </div>
-      <div className="flex items-center justify-center gap-2 mt-5">
-        <input
-          type="text"
-          placeholder="Target Audience"
-          className="border-b text-2xl outline-none font-medium"
-          value={targetAudience}
-          onChange={(e) => setTargetAudience(e.target.value)}
-        />
-      </div>
-      <div className="flex items-center justify-center gap-2 mt-5">
-        <input
-          type="text"
-          placeholder="Tone"
-          className="border-b text-2xl outline-none font-medium"
-          value={tone}
-          onChange={(e) => setTone(e.target.value)}
-        />
-      </div>
-      <div className="flex items-center justify-center gap-2 mt-5">
-        <label htmlFor="" className="text-lg">
-          Do you want to add emojis?
-        </label>
-        <input
-          type="checkbox"
-          className=" text-lg outline-none font-medium cursor-pointer"
-          onChange={(e) => setEmojis(e.target.checked)}
-          checked={emojis}
-        />
-      </div>
-      <button
-        className="rounded-lg border border-amber-400 p-2 cursor-pointer text-sm hover:bg-amber-400 hover:text-black transition-all font-semibold mt-5
-        "
-        onClick={handleGeneratePost}
-      >
-        Generate
-      </button>
-      <button
-        onClick={handleGenerateImage}
-        disabled={!post}
-        className="rounded-lg border border-amber-400 p-2 text-sm font-semibold mt-5 cursor-pointer  hover:bg-amber-400
-             disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Image
-      </button>
-      <div className="w-2/3 mt-10 text-lg text-justify font-normal flex flex-col items-center justify-center gap-8 mb-4">
-        {post && (
-          <>
-            <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
-            <p>{post.content}</p>
-            {post.image && (
-              <img
-                src={`data:image/png;base64,${post.image}`}
-                className="h-80 w-80"
+    <main className="min-h-screen bg-gradient-to-br from-amber-900 to-amber-700 px-4 py-10 text-amber-50">
+      <section className="mx-auto max-w-5xl">
+        {/* Header */}
+        <header className="mb-10 text-center">
+          <h1 className="text-4xl font-bold tracking-tight">
+            AI Social Media Post Generator
+          </h1>
+          <p className="mt-3 text-amber-200 text-lg">
+            Generate captions and images using Generative AI
+          </p>
+        </header>
+
+        {/* Input Card */}
+        <div className="rounded-2xl bg-amber-50 p-6 shadow-lg text-amber-900">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Topic */}
+            <div>
+              <label className="block text-sm font-semibold mb-1">Topic</label>
+              <input
+                type="text"
+                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
               />
+            </div>
+
+            {/* Platform */}
+            <div>
+              <label className="block text-sm font-semibold mb-1">
+                Platform
+              </label>
+              <input
+                type="text"
+                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
+                value={platform}
+                onChange={(e) => setPlatform(e.target.value)}
+              />
+            </div>
+
+            {/* Target Audience */}
+            <div>
+              <label className="block text-sm font-semibold mb-1">
+                Target Audience
+              </label>
+              <input
+                type="text"
+                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
+                value={targetAudience}
+                onChange={(e) => setTargetAudience(e.target.value)}
+              />
+            </div>
+
+            {/* Tone */}
+            <div>
+              <label className="block text-sm font-semibold mb-1">Tone</label>
+              <input
+                type="text"
+                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Emoji Toggle */}
+          <div className="mt-6 flex items-center justify-between">
+            <label className="text-sm font-medium">
+              Include emojis in caption
+            </label>
+            <input
+              type="checkbox"
+              className="h-5 w-5 cursor-pointer accent-amber-600"
+              checked={emojis}
+              onChange={(e) => setEmojis(e.target.checked)}
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={handleGeneratePost}
+              disabled={isGeneratingPost}
+              className="flex-1 rounded-lg bg-amber-600 px-6 py-3 text-white font-semibold
+             hover:bg-amber-700 transition
+             disabled:opacity-60 disabled:cursor-not-allowed
+             flex items-center justify-center gap-2"
+            >
+              {isGeneratingPost && (
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              )}
+              {isGeneratingPost ? "Generating..." : "Generate Post"}
+            </button>
+
+            <button
+              onClick={handleGenerateImage}
+              disabled={!post || isGeneratingImage}
+              className="flex-1 rounded-lg border border-amber-600 px-6 py-3 font-semibold text-amber-700
+             hover:bg-amber-100 transition
+             disabled:opacity-50 disabled:cursor-not-allowed
+             flex items-center justify-center gap-2"
+            >
+              {isGeneratingImage && (
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
+              )}
+              {isGeneratingImage ? "Generating Image..." : "Generate Image"}
+            </button>
+          </div>
+        </div>
+
+        {/* Output Section */}
+        {post && (
+          <section className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center ">
+            {/* Text Output */}
+            <article className="rounded-xl bg-white p-6 shadow text-amber-900">
+              <h2 className="text-2xl font-bold mb-4">{post.title}</h2>
+              <p className="leading-relaxed whitespace-pre-line">
+                {post.content}
+              </p>
+            </article>
+
+            {/* Image Output */}
+            {post.image && (
+              <div className="flex justify-center">
+                <img
+                  src={`data:image/png;base64,${post.image}`}
+                  alt="Generated visual"
+                  className="rounded-xl shadow-lg max-h-[420px] object-contain"
+                />
+              </div>
             )}
-          </>
+          </section>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
