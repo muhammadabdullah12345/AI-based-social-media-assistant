@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { generateImage } from "./generateImage";
 const Gemini_api_key = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 const ai = new GoogleGenAI({
   apiKey: Gemini_api_key,
@@ -33,5 +34,7 @@ export async function generatePost(
   const res = JSON.parse(response.text || "");
 
   console.log(res);
-  return res;
+
+  const imageResult = await generateImage(res.image_prompt);
+  return { ...res, image: imageResult?.image };
 }

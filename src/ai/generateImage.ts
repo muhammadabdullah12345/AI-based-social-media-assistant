@@ -1,29 +1,39 @@
 import { GoogleGenAI } from "@google/genai";
-import * as fs from "node:fs";
-import { Gemini_api_key } from "./generate-post";
 
-export async function generateImage() {
+export async function generateImage(prompt: string) {
+  const Gemini_api_key = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+
   const ai = new GoogleGenAI({
     apiKey: Gemini_api_key,
   });
-  const prompt =
-    "Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme";
 
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash-image",
-    contents: prompt,
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: `Create a realistic and aesthetic image with this prompt:${prompt}`,
+          },
+        ],
+      },
+    ],
   });
-  for (const part of response.candidates[0].content.parts) {
-    if (part.text) {
-      console.log(part.text);
-    } else if (part.inlineData) {
-      const imageData = part.inlineData.data;
-      const buffer = Buffer.from(imageData, "base64");
-      fs.writeFileSync("gemini-native-image.png", buffer);
-      console.log("Image saved as gemini-native-image.png");
+
+  const candidate = response.candidates?.[0];
+
+  if (!candidate?.content?.parts) {
+    return {
+      error: "Image generation failed",
+    };
+  }
+
+  for (const part of candidate.content.parts) {
+    if (part.inlineData) {
+      return {
+        image: part.inlineData.data,
+      };
     }
   }
-  console.log(response);
 }
-
-// main();

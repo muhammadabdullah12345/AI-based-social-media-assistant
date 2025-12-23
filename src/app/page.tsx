@@ -35,6 +35,7 @@ export default function Page() {
       });
 
       const data = await res.json();
+      console.log(data);
       setPost(data);
     } catch (error) {
       console.error("Post generation failed", error);
@@ -43,38 +44,38 @@ export default function Page() {
     }
   }
 
-  async function handleGenerateImage() {
-    if (!post?.image_prompt) return;
+  // async function handleGenerateImage() {
+  //   if (!post?.image_prompt) return;
 
-    try {
-      setIsGeneratingImage(true);
+  //   try {
+  //     setIsGeneratingImage(true);
 
-      const res = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: post.image_prompt,
-        }),
-      });
+  //     const res = await fetch("/api/generate-image", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         prompt: post.image_prompt,
+  //       }),
+  //     });
 
-      if (!res.ok) return;
+  //     if (!res.ok) return;
 
-      const data = await res.json();
+  //     const data = await res.json();
 
-      setPost((prev) =>
-        prev
-          ? {
-              ...prev,
-              image: data.image,
-            }
-          : prev
-      );
-    } catch (error) {
-      console.error("Image generation failed", error);
-    } finally {
-      setIsGeneratingImage(false);
-    }
-  }
+  //     setPost((prev) =>
+  //       prev
+  //         ? {
+  //             ...prev,
+  //             image: data.image,
+  //           }
+  //         : prev
+  //     );
+  //   } catch (error) {
+  //     console.error("Image generation failed", error);
+  //   } finally {
+  //     setIsGeneratingImage(false);
+  //   }
+  // }
 
   useEffect(() => {
     setEmojiStatus(emojis ? "add" : "not add");
@@ -163,7 +164,7 @@ export default function Page() {
             <button
               onClick={handleGeneratePost}
               disabled={isGeneratingPost}
-              className="flex-1 rounded-lg bg-amber-600 px-6 py-3 text-white font-semibold
+              className="flex-1 rounded-lg bg-amber-600 cursor-pointer px-6 py-3 text-white font-semibold
              hover:bg-amber-700 transition
              disabled:opacity-60 disabled:cursor-not-allowed
              flex items-center justify-center gap-2"
@@ -174,10 +175,10 @@ export default function Page() {
               {isGeneratingPost ? "Generating..." : "Generate Post"}
             </button>
 
-            <button
+            {/* <button
               onClick={handleGenerateImage}
               disabled={!post || isGeneratingImage}
-              className="flex-1 rounded-lg border border-amber-600 px-6 py-3 font-semibold text-amber-700
+              className="flex-1 rounded-lg cursor-pointer border border-amber-600 px-6 py-3 font-semibold text-amber-700
              hover:bg-amber-100 transition
              disabled:opacity-50 disabled:cursor-not-allowed
              flex items-center justify-center gap-2"
@@ -186,7 +187,7 @@ export default function Page() {
                 <span className="h-5 w-5 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
               )}
               {isGeneratingImage ? "Generating Image..." : "Generate Image"}
-            </button>
+            </button> */}
           </div>
         </div>
 
