@@ -174,28 +174,23 @@ export default function Page() {
               )}
               {isGeneratingPost ? "Generating..." : "Generate Post"}
             </button>
-
-            {/* <button
-              onClick={handleGenerateImage}
-              disabled={!post || isGeneratingImage}
-              className="flex-1 rounded-lg cursor-pointer border border-amber-600 px-6 py-3 font-semibold text-amber-700
-             hover:bg-amber-100 transition
-             disabled:opacity-50 disabled:cursor-not-allowed
-             flex items-center justify-center gap-2"
-            >
-              {isGeneratingImage && (
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
-              )}
-              {isGeneratingImage ? "Generating Image..." : "Generate Image"}
-            </button> */}
           </div>
         </div>
 
         {/* Output Section */}
         {post && (
-          <section className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center ">
+          <section className="mt-12 flex flex-col items-center justify-center max-w-[500px] mx-auto">
             {/* Text Output */}
-            <article className="rounded-xl bg-white p-6 shadow text-amber-900">
+            {post.image && (
+
+                <img
+                  src={`data:image/png;base64,${post.image}`}
+                  alt="Generated visual"
+                  className="rounded-t-xl shadow-lg max-h-[300px] w-full object-cover"
+                />
+            
+            )}
+            <article className="rounded-b-xl bg-white p-6 shadow text-amber-900">
               <h2 className="text-2xl font-bold mb-4">{post.title}</h2>
               <p className="leading-relaxed whitespace-pre-line">
                 {post.content}
@@ -203,15 +198,6 @@ export default function Page() {
             </article>
 
             {/* Image Output */}
-            {post.image && (
-              <div className="flex justify-center">
-                <img
-                  src={`data:image/png;base64,${post.image}`}
-                  alt="Generated visual"
-                  className="rounded-xl shadow-lg max-h-[420px] object-contain"
-                />
-              </div>
-            )}
           </section>
         )}
       </section>
