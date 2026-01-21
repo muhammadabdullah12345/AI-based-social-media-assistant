@@ -182,13 +182,11 @@ export default function Page() {
           <section className="mt-12 flex flex-col items-center justify-center max-w-[500px] mx-auto">
             {/* Text Output */}
             {post.image && (
-
-                <img
-                  src={`data:image/png;base64,${post.image}`}
-                  alt="Generated visual"
-                  className="rounded-t-xl shadow-lg max-h-[300px] w-full object-cover"
-                />
-            
+              <img
+                src={`data:image/png;base64,${post.image}`}
+                alt="Generated visual"
+                className="rounded-t-xl shadow-lg max-h-[300px] w-full object-fill"
+              />
             )}
             <article className="rounded-b-xl bg-white p-6 shadow text-amber-900">
               <h2 className="text-2xl font-bold mb-4">{post.title}</h2>
