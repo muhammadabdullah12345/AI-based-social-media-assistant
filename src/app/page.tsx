@@ -1,204 +1,169 @@
 "use client";
+import { motion } from "framer-motion";
+import {
+  Sparkles,
+  Calendar,
+  ShieldCheck,
+  Twitter,
+  Linkedin,
+  Github,
+} from "lucide-react";
+import { redirect } from "next/navigation";
 
-import React, { useEffect, useState } from "react";
-
-export default function Page() {
-  const [isGeneratingPost, setIsGeneratingPost] = useState(false);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [topic, setTopic] = useState("travelling");
-  const [platform, setPlatform] = useState("instagram");
-  const [targetAudience, setTargetAudience] = useState("normal people");
-  const [tone, setTone] = useState("professional");
-  const [emojis, setEmojis] = useState(false);
-  const [emojiStatus, setEmojiStatus] = useState("");
-  const [post, setPost] = useState<{
-    title: string;
-    content: string;
-    image_prompt: string;
-    image?: string;
-  } | null>(null);
-
-  async function handleGeneratePost() {
-    try {
-      setIsGeneratingPost(true);
-
-      const res = await fetch("/api/generate-post", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic,
-          targetAudience,
-          tone,
-          platform,
-          emojiStatus,
-        }),
-      });
-
-      const data = await res.json();
-      console.log(data);
-      setPost(data);
-    } catch (error) {
-      console.error("Post generation failed", error);
-    } finally {
-      setIsGeneratingPost(false);
-    }
-  }
-
-  // async function handleGenerateImage() {
-  //   if (!post?.image_prompt) return;
-
-  //   try {
-  //     setIsGeneratingImage(true);
-
-  //     const res = await fetch("/api/generate-image", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         prompt: post.image_prompt,
-  //       }),
-  //     });
-
-  //     if (!res.ok) return;
-
-  //     const data = await res.json();
-
-  //     setPost((prev) =>
-  //       prev
-  //         ? {
-  //             ...prev,
-  //             image: data.image,
-  //           }
-  //         : prev
-  //     );
-  //   } catch (error) {
-  //     console.error("Image generation failed", error);
-  //   } finally {
-  //     setIsGeneratingImage(false);
-  //   }
-  // }
-
-  useEffect(() => {
-    setEmojiStatus(emojis ? "add" : "not add");
-  }, [emojis]);
-
+export default function GeneratifyLanding() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-amber-900 to-amber-700 px-4 py-10 text-amber-50">
-      <section className="mx-auto max-w-5xl">
-        {/* Header */}
-        <header className="mb-10 text-center">
-          <h1 className="text-4xl font-bold tracking-tight">
-            AI Social Media Post Generator
-          </h1>
-          <p className="mt-3 text-amber-200 text-lg">
-            Generate captions and images using Generative AI
-          </p>
-        </header>
-
-        {/* Input Card */}
-        <div className="rounded-2xl bg-amber-50 p-6 shadow-lg text-amber-900">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Topic */}
-            <div>
-              <label className="block text-sm font-semibold mb-1">Topic</label>
-              <input
-                type="text"
-                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-              />
-            </div>
-
-            {/* Platform */}
-            <div>
-              <label className="block text-sm font-semibold mb-1">
-                Platform
-              </label>
-              <input
-                type="text"
-                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value)}
-              />
-            </div>
-
-            {/* Target Audience */}
-            <div>
-              <label className="block text-sm font-semibold mb-1">
-                Target Audience
-              </label>
-              <input
-                type="text"
-                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
-                value={targetAudience}
-                onChange={(e) => setTargetAudience(e.target.value)}
-              />
-            </div>
-
-            {/* Tone */}
-            <div>
-              <label className="block text-sm font-semibold mb-1">Tone</label>
-              <input
-                type="text"
-                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
-                value={tone}
-                onChange={(e) => setTone(e.target.value)}
-              />
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+      {/* Navbar */}
+      <nav className="sticky top-0 z-50 backdrop-blur bg-slate-950/70 border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="text-2xl font-bold tracking-tight text-white">
+            Generatify
           </div>
-
-          {/* Emoji Toggle */}
-          <div className="mt-6 flex items-center justify-between">
-            <label className="text-sm font-medium">
-              Include emojis in caption
-            </label>
-            <input
-              type="checkbox"
-              className="h-5 w-5 cursor-pointer accent-amber-600"
-              checked={emojis}
-              onChange={(e) => setEmojis(e.target.checked)}
-            />
+          <div className="hidden md:flex items-center gap-8 text-sm text-slate-300">
+            <a href="#features" className="hover:text-white transition">
+              Features
+            </a>
+            <a href="#how" className="hover:text-white transition">
+              How it Works
+            </a>
+            <a href="#contact" className="hover:text-white transition">
+              Contact
+            </a>
           </div>
-
-          {/* Buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+          <div className="flex items-center gap-3">
             <button
-              onClick={handleGeneratePost}
-              disabled={isGeneratingPost}
-              className="flex-1 rounded-lg bg-amber-600 cursor-pointer px-6 py-3 text-white font-semibold
-             hover:bg-amber-700 transition
-             disabled:opacity-60 disabled:cursor-not-allowed
-             flex items-center justify-center gap-2"
+              className="px-4 py-2 text-sm rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+              onClick={() => redirect("/login")}
             >
-              {isGeneratingPost && (
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              )}
-              {isGeneratingPost ? "Generating..." : "Generate Post"}
+              Login
+            </button>
+            <button
+              className="px-4 py-2 cursor-pointer text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500 transition"
+              onClick={() => redirect("/signup")}
+            >
+              Sign Up
             </button>
           </div>
         </div>
+      </nav>
 
-        {/* Output Section */}
-        {post && (
-          <section className="mt-12 flex flex-col items-center justify-center max-w-[500px] mx-auto">
-            {/* Text Output */}
-            {post.image && (
-              <img
-                src={`data:image/png;base64,${post.image}`}
-                alt="Generated visual"
-                className="rounded-t-xl shadow-lg max-h-[300px] w-full object-fill"
-              />
-            )}
-            <article className="rounded-b-xl bg-white p-6 shadow text-amber-900">
-              <h2 className="text-2xl font-bold mb-4">{post.title}</h2>
-              <p className="leading-relaxed whitespace-pre-line">
-                {post.content}
-              </p>
-            </article>
-
-            {/* Image Output */}
-          </section>
-        )}
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 py-28 text-center">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-6xl font-extrabold leading-tight"
+          >
+            Create. Automate. <span className="text-indigo-500">Publish.</span>
+          </motion.h1>
+          <p className="mt-6 text-lg md:text-xl text-slate-300 max-w-2xl mx-auto">
+            Generatify is an AI-powered social media assistant that helps you
+            generate content and publish it automatically across platforms —
+            faster than ever.
+          </p>
+          <div className="mt-10 flex justify-center gap-4">
+            <button className="px-8 py-3 cursor-pointer rounded-xl bg-indigo-600 hover:bg-indigo-500 transition text-lg font-medium">
+              Get Started
+            </button>
+            <button className="px-8 py-3 cursor-pointer rounded-xl border border-slate-700 hover:border-slate-500 transition text-lg">
+              Learn More
+            </button>
+          </div>
+        </div>
       </section>
-    </main>
+
+      {/* Features */}
+      <section id="features" className="py-24 bg-slate-950">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-center">
+            Powerful Features
+          </h2>
+          <p className="text-center text-slate-400 mt-4">
+            Everything you need to manage content intelligently
+          </p>
+          <div className="mt-16 grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Sparkles,
+                title: "AI Content Generation",
+                desc: "Generate engaging, platform-optimized posts instantly.",
+              },
+              {
+                icon: Calendar,
+                title: "Smart Scheduling",
+                desc: "Schedule posts across multiple platforms effortlessly.",
+              },
+              {
+                icon: ShieldCheck,
+                title: "Secure & Reliable",
+                desc: "Built with modern authentication and secure APIs.",
+              },
+            ].map((f, i) => (
+              <div
+                key={i}
+                className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center hover:border-indigo-600 transition"
+              >
+                <f.icon className="mx-auto h-10 w-10 text-indigo-500" />
+                <h3 className="mt-6 text-xl font-semibold">{f.title}</h3>
+                <p className="mt-3 text-slate-400">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section id="how" className="py-24 bg-slate-900">
+        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-10 text-center">
+          {["Connect Accounts", "Generate Content", "Auto Publish"].map(
+            (step, i) => (
+              <div key={i} className="space-y-4">
+                <div className="text-5xl font-bold text-indigo-600">
+                  0{i + 1}
+                </div>
+                <h3 className="text-xl font-semibold">{step}</h3>
+                <p className="text-slate-400">
+                  Simple, fast, and optimized workflow powered by AI.
+                </p>
+              </div>
+            ),
+          )}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 bg-gradient-to-r from-indigo-600 to-purple-600 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold">
+          Start Growing Smarter Today
+        </h2>
+        <p className="mt-4 text-indigo-100">
+          Let Generatify handle your content while you focus on growth.
+        </p>
+        <div className="mt-8">
+          <button className="px-8 py-3 cursor-pointer rounded-xl bg-white text-indigo-700 font-semibold hover:bg-indigo-50 transition">
+            Create Free Account
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer
+        id="contact"
+        className="bg-slate-950 border-t border-slate-800 py-10"
+      >
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-slate-400">
+            © {new Date().getFullYear()} Generatify. All rights reserved.
+          </p>
+          <div className="flex gap-5 text-slate-400">
+            <Twitter className="hover:text-white cursor-pointer" />
+            <Linkedin className="hover:text-white cursor-pointer" />
+            <Github className="hover:text-white cursor-pointer" />
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
