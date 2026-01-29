@@ -37,12 +37,31 @@ export default function GeneratorForm() {
       const data = await res.json();
       console.log(data);
       setPost(data);
+      return data;
     } catch (error) {
       console.error("Post generation failed", error);
     } finally {
       setIsGeneratingPost(false);
     }
   }
+
+  const handleGenerateAndSave = async () => {
+    try {
+      // 1️⃣ AI generation (example)
+      const generatedPost = await handleGeneratePost();
+
+      // 2️⃣ Save to DB
+      await savePost(
+        generatedPost.title,
+        generatedPost.content,
+        generatedPost.image,
+      );
+
+      alert("Post saved successfully!");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     setEmojiStatus(emojis ? "add" : "not add");
@@ -129,7 +148,7 @@ export default function GeneratorForm() {
           {/* Buttons */}
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <button
-              onClick={handleGeneratePost}
+              onClick={handleGenerateAndSave}
               disabled={isGeneratingPost}
               className="flex-1 rounded-lg bg-amber-600 cursor-pointer px-6 py-3 text-white font-semibold
              hover:bg-amber-700 transition

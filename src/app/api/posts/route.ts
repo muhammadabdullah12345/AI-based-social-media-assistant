@@ -4,6 +4,7 @@ import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
+
   if (!session)
     return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -23,11 +24,15 @@ export async function POST(req: Request) {
 
 export async function GET() {
   const session = await getServerSession(authOptions);
+
   if (!session) return Response.json([]);
 
   const posts = await prisma.post.findMany({
     where: {
       userId: session.user?.id,
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
 
