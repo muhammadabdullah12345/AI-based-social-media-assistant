@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { uploadAIImage } from "../ai/upload_ai_image";
+import { savePost } from "../ai/savepost";
 
 export default function GeneratorForm() {
   const [isGeneratingPost, setIsGeneratingPost] = useState(false);
@@ -47,14 +49,14 @@ export default function GeneratorForm() {
 
   const handleGenerateAndSave = async () => {
     try {
-      // 1️⃣ AI generation (example)
       const generatedPost = await handleGeneratePost();
 
-      // 2️⃣ Save to DB
+      const cloudinaryImageUrl = await uploadAIImage(generatedPost.image);
+
       await savePost(
         generatedPost.title,
         generatedPost.content,
-        generatedPost.image,
+        cloudinaryImageUrl,
       );
 
       alert("Post saved successfully!");
@@ -169,7 +171,8 @@ export default function GeneratorForm() {
             {/* Text Output */}
             {post.image && (
               <img
-                src={`data:image/png;base64,${post.image}`}
+                // src={`data:image/png;base64,${post.image}`}
+                src={post.image}
                 alt="Generated visual"
                 className="rounded-t-xl shadow-lg max-h-[300px] w-full object-fill"
               />

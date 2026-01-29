@@ -1,4 +1,8 @@
-const savePost = async (title: string, content: string, image: string) => {
+export const savePost = async (
+  title: string,
+  content: string,
+  image: string,
+) => {
   const res = await fetch("/api/posts", {
     method: "POST",
     headers: {
