@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
-import GeneratorForm from "@/src/components/generatorform";
+import GeneratorForm from "@/src/components/GeneratorForm";
 
 export default async function Dashboard() {
   const session = await getServerSession(authOptions);

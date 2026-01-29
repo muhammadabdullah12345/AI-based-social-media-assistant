@@ -1,5 +1,4 @@
 "use client";
-import { motion } from "framer-motion";
 import {
   Sparkles,
   Calendar,
@@ -8,72 +7,16 @@ import {
   Linkedin,
   Github,
 } from "lucide-react";
+import Navbar from "../components/Navbar";
+import Hero from "../components/Hero";
 import { redirect } from "next/navigation";
 
 export default function GeneratifyLanding() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 backdrop-blur bg-slate-950/70 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold tracking-tight text-white">
-            Generatify
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-slate-300">
-            <a href="#features" className="hover:text-white transition">
-              Features
-            </a>
-            <a href="#how" className="hover:text-white transition">
-              How it Works
-            </a>
-            <a href="#contact" className="hover:text-white transition">
-              Contact
-            </a>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="px-4 py-2 text-sm rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
-              onClick={() => redirect("/login")}
-            >
-              Login
-            </button>
-            <button
-              className="px-4 py-2 cursor-pointer text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500 transition"
-              onClick={() => redirect("/signup")}
-            >
-              Sign Up
-            </button>
-          </div>
-        </div>
-      </nav>
-
+      <Navbar />
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 py-28 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-4xl md:text-6xl font-extrabold leading-tight"
-          >
-            Create. Automate. <span className="text-indigo-500">Publish.</span>
-          </motion.h1>
-          <p className="mt-6 text-lg md:text-xl text-slate-300 max-w-2xl mx-auto">
-            Generatify is an AI-powered social media assistant that helps you
-            generate content and publish it automatically across platforms —
-            faster than ever.
-          </p>
-          <div className="mt-10 flex justify-center gap-4">
-            <button className="px-8 py-3 cursor-pointer rounded-xl bg-indigo-600 hover:bg-indigo-500 transition text-lg font-medium">
-              Get Started
-            </button>
-            <button className="px-8 py-3 cursor-pointer rounded-xl border border-slate-700 hover:border-slate-500 transition text-lg">
-              Learn More
-            </button>
-          </div>
-        </div>
-      </section>
-
+      <Hero />
       {/* Features */}
       <section id="features" className="py-24 bg-slate-950">
         <div className="max-w-7xl mx-auto px-6">
@@ -142,7 +85,10 @@ export default function GeneratifyLanding() {
           Let Generatify handle your content while you focus on growth.
         </p>
         <div className="mt-8">
-          <button className="px-8 py-3 cursor-pointer rounded-xl bg-white text-indigo-700 font-semibold hover:bg-indigo-50 transition">
+          <button
+            className="px-8 py-3 cursor-pointer rounded-xl bg-white text-indigo-700 font-semibold hover:bg-indigo-50 transition"
+            onClick={() => redirect("/signup")}
+          >
             Create Free Account
           </button>
         </div>

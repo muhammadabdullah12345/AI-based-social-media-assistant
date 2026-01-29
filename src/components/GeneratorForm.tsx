@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { uploadAIImage } from "../ai/upload_ai_image";
 import { savePost } from "../ai/savepost";
+import { Loader2, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function GeneratorForm() {
   const [isGeneratingPost, setIsGeneratingPost] = useState(false);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [topic, setTopic] = useState("travelling");
   const [platform, setPlatform] = useState("instagram");
   const [targetAudience, setTargetAudience] = useState("normal people");
@@ -37,7 +38,6 @@ export default function GeneratorForm() {
       });
 
       const data = await res.json();
-      console.log(data);
       setPost(data);
       return data;
     } catch (error) {
@@ -50,15 +50,12 @@ export default function GeneratorForm() {
   const handleGenerateAndSave = async () => {
     try {
       const generatedPost = await handleGeneratePost();
-
       const cloudinaryImageUrl = await uploadAIImage(generatedPost.image);
-
       await savePost(
         generatedPost.title,
         generatedPost.content,
         cloudinaryImageUrl,
       );
-
       alert("Post saved successfully!");
     } catch (err) {
       console.error(err);
@@ -70,27 +67,32 @@ export default function GeneratorForm() {
   }, [emojis]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-amber-900 to-amber-700 px-4 py-10 text-amber-50">
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-12 text-slate-100">
       <section className="mx-auto max-w-5xl">
         {/* Header */}
         <header className="mb-10 text-center">
-          <h1 className="text-4xl font-bold tracking-tight">
-            AI Social Media Post Generator
+          <h1 className="text-4xl font-extrabold tracking-tight">
+            AI Post Generator
           </h1>
-          <p className="mt-3 text-amber-200 text-lg">
-            Generate captions and images using Generative AI
+          <p className="mt-3 text-slate-400 text-lg">
+            Generate captions and visuals using Generative AI
           </p>
         </header>
 
-        {/* Input Card */}
-        <div className="rounded-2xl bg-amber-50 p-6 shadow-lg text-amber-900">
+        {/* Form Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="rounded-2xl bg-slate-900/80 backdrop-blur border border-slate-800 p-8 shadow-xl"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Topic */}
             <div>
-              <label className="block text-sm font-semibold mb-1">Topic</label>
+              <label className="block text-sm mb-2 text-slate-300">Topic</label>
               <input
-                type="text"
-                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 text-sm
+                placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
               />
@@ -98,12 +100,12 @@ export default function GeneratorForm() {
 
             {/* Platform */}
             <div>
-              <label className="block text-sm font-semibold mb-1">
+              <label className="block text-sm mb-2 text-slate-300">
                 Platform
               </label>
               <input
-                type="text"
-                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 text-sm
+                placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
               />
@@ -111,12 +113,12 @@ export default function GeneratorForm() {
 
             {/* Target Audience */}
             <div>
-              <label className="block text-sm font-semibold mb-1">
+              <label className="block text-sm mb-2 text-slate-300">
                 Target Audience
               </label>
               <input
-                type="text"
-                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 text-sm
+                placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 value={targetAudience}
                 onChange={(e) => setTargetAudience(e.target.value)}
               />
@@ -124,10 +126,10 @@ export default function GeneratorForm() {
 
             {/* Tone */}
             <div>
-              <label className="block text-sm font-semibold mb-1">Tone</label>
+              <label className="block text-sm mb-2 text-slate-300">Tone</label>
               <input
-                type="text"
-                className="w-full rounded-md border border-amber-300 px-4 py-2 text-base outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 text-sm
+                placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
               />
@@ -136,56 +138,62 @@ export default function GeneratorForm() {
 
           {/* Emoji Toggle */}
           <div className="mt-6 flex items-center justify-between">
-            <label className="text-sm font-medium">
+            <span className="text-sm text-slate-300">
               Include emojis in caption
-            </label>
+            </span>
             <input
               type="checkbox"
-              className="h-5 w-5 cursor-pointer accent-amber-600"
               checked={emojis}
               onChange={(e) => setEmojis(e.target.checked)}
+              className="h-5 w-5 accent-indigo-600 cursor-pointer"
             />
           </div>
 
-          {/* Buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+          {/* Button */}
+          <div className="mt-8">
             <button
               onClick={handleGenerateAndSave}
               disabled={isGeneratingPost}
-              className="flex-1 rounded-lg bg-amber-600 cursor-pointer px-6 py-3 text-white font-semibold
-             hover:bg-amber-700 transition
-             disabled:opacity-60 disabled:cursor-not-allowed
-             flex items-center justify-center gap-2"
+              className="cursor-pointer w-full rounded-xl bg-indigo-600 hover:bg-indigo-500 transition py-3 font-medium
+              flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              {isGeneratingPost && (
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              {isGeneratingPost ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-5 w-5" />
+                  Generate & Save Post
+                </>
               )}
-              {isGeneratingPost ? "Generating..." : "Generate Post"}
             </button>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Output Section */}
+        {/* Output */}
         {post && (
-          <section className="mt-12 flex flex-col items-center justify-center max-w-[500px] mx-auto">
-            {/* Text Output */}
+          <motion.section
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-12 max-w-xl mx-auto"
+          >
             {post.image && (
               <img
-                // src={`data:image/png;base64,${post.image}`}
                 src={post.image}
-                alt="Generated visual"
-                className="rounded-t-xl shadow-lg max-h-[300px] w-full object-fill"
+                alt="Generated"
+                className="rounded-t-2xl w-full max-h-[300px] object-cover border border-slate-800"
               />
             )}
-            <article className="rounded-b-xl bg-white p-6 shadow text-amber-900">
-              <h2 className="text-2xl font-bold mb-4">{post.title}</h2>
-              <p className="leading-relaxed whitespace-pre-line">
+
+            <div className="rounded-b-2xl bg-slate-900 border border-t-0 border-slate-800 p-6 shadow-lg">
+              <h2 className="text-2xl font-bold mb-3">{post.title}</h2>
+              <p className="text-slate-300 whitespace-pre-line leading-relaxed">
                 {post.content}
               </p>
-            </article>
-
-            {/* Image Output */}
-          </section>
+            </div>
+          </motion.section>
         )}
       </section>
     </main>
