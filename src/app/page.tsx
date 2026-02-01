@@ -14,7 +14,6 @@ import { redirect } from "next/navigation";
 export default function GeneratifyLanding() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      <Navbar />
       {/* Hero */}
       <Hero />
       {/* Features */}

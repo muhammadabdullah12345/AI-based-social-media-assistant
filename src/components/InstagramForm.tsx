@@ -3,8 +3,9 @@
 import React, { useState } from "react";
 import { uploadAIImage } from "@/src/ai/upload_ai_image";
 import { savePost } from "@/src/ai/savepost";
-import { Loader2, Sparkles, Instagram } from "lucide-react";
+import { Loader2, Sparkles, Instagram, History } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function InstagramForm() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -80,11 +81,13 @@ export default function InstagramForm() {
     <main className="min-h-screen bg-gradient-to-br from-pink-950 via-purple-950 to-slate-950 px-6 py-12 text-white">
       <section className="mx-auto max-w-7xl">
         {/* Page Header */}
-        <header className="mb-12 flex items-center justify-between">
+        <header className="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          {/* Left: Title */}
           <div className="flex items-center gap-4">
             <div className="rounded-xl bg-pink-600/20 p-3">
               <Instagram className="h-7 w-7 text-pink-500" />
             </div>
+
             <div>
               <h1 className="text-3xl font-bold">Instagram Content Studio</h1>
               <p className="text-slate-400 text-sm mt-1">
@@ -92,6 +95,17 @@ export default function InstagramForm() {
               </p>
             </div>
           </div>
+
+          {/* Right: History Navigation */}
+          <Link
+            href="/dashboard/instagram/history"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-800
+               bg-slate-900 px-5 py-3 text-sm text-slate-200
+               hover:bg-slate-800 transition"
+          >
+            <History className="h-4 w-4 text-pink-500" />
+            View Post History
+          </Link>
         </header>
 
         {/* Main Layout */}
