@@ -8,6 +8,5 @@ export default async function Dashboard() {
 
   if (!session) redirect("/login");
 
-  // return <div>Welcome {session.user?.email}</div>;
   return <GeneratorForm />;
 }

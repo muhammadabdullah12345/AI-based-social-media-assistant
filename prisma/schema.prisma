@@ -23,6 +23,7 @@ model Post {
   title     String
   content   String
   image     String?
+  platform  String // 👈 ADD THIS
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
