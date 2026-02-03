@@ -4,13 +4,13 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   const body = await req.json();
 
-  const post = await generatePost(
+  const posts = await generatePost(
     body.topic,
     body.targetAudience,
     body.tone,
     body.platform,
-    body.emojiStatus
+    body.emojiStatus,
   );
 
-  return NextResponse.json(post);
+  return NextResponse.json({ posts });
 }

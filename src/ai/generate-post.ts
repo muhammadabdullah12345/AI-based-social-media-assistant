@@ -9,32 +9,57 @@ export async function generatePost(
   topic: string,
   targetAudience: string,
   tone: string,
-  platfrom: string,
-  emojiStatus: string
-): Promise<{ title: string; content: string; image_prompt: string }> {
+  platform: string,
+  emojiStatus: string,
+): Promise<
+  {
+    title: string;
+    content: string;
+    image_prompt: string;
+    image?: string;
+  }[]
+> {
   const prompt = `
-          You are a content creator which generates every kind of social media post including each aspect of life.Please format your response as valid JSON with exactly this structure:
+You are a professional social media strategist.
+
+Generate EXACTLY 3 different Instagram post variations.
+Each variation must have a different writing style.
+
+Return VALID JSON ONLY in this format:
+
+{
+  "posts": [
     {
-      "title": "An engaging title for the post",
-      "content": "Create a 50 words social media post about ${topic} for ${platfrom}.Tone should be ${tone} and target audience should be ${targetAudience}.I want to ${emojiStatus} emojis.",
-      "image_prompt": "A concise description for an AI image generator to create a realistic and aesthetic image that complements the post"
+      "title": "",
+      "content": "",
+      "image_prompt": ""
     }
-     Make sure to return only valid JSON, no additional text or formatting.
-  `;
+  ]
+}
+
+Topic: ${topic}
+Platform: ${platform}
+Tone: ${tone}
+Target Audience: ${targetAudience}
+Emoji preference: ${emojiStatus}
+`;
+
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
     contents: [prompt],
-    config: {
-      responseMimeType: "application/json",
-    },
+    config: { responseMimeType: "application/json" },
   });
 
-  console.log(response);
-  console.log(response.text);
-  const res = JSON.parse(response.text || "");
+  const parsed = JSON.parse(response.text || "");
+  const posts = parsed.posts;
 
-  console.log(res);
+  // Generate image for EACH variation
+  const postsWithImages = await Promise.all(
+    posts.map(async (post: any) => {
+      const image = await generateImage(post.image_prompt);
+      return { ...post, image: image?.image };
+    }),
+  );
 
-  const imageResult = await generateImage(res.image_prompt);
-  return { ...res, image: imageResult?.image };
+  return postsWithImages;
 }
