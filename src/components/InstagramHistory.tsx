@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Instagram, ImageIcon } from "lucide-react";
+import { Instagram, ImageIcon, Router } from "lucide-react";
 import { motion } from "framer-motion";
+import { Trash2, Edit } from "lucide-react";
+import { deletePost } from "@/src/ai/postActions";
+import { redirect } from "next/navigation";
 
 type Post = {
   id: string;
@@ -31,6 +34,18 @@ export default function InstagramPostHistory() {
 
     fetchPosts();
   }, []);
+
+  async function handleDelete(id: string) {
+    const confirmDelete = confirm("Are you sure you want to delete this post?");
+    if (!confirmDelete) return;
+
+    try {
+      await deletePost(id);
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      alert("Failed to delete post");
+    }
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-pink-950 via-purple-950 to-slate-950 px-6 py-12 text-white">
@@ -111,11 +126,20 @@ export default function InstagramPostHistory() {
 
                   {/* Actions */}
                   <div className="mt-4 flex gap-3">
-                    <button className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2">
-                      View
+                    <button
+                      onClick={() =>
+                        redirect(`/dashboard/instagram/edit/${post.id}`)
+                      }
+                      className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2 flex items-center justify-center gap-1"
+                    >
+                      <Edit size={14} /> Edit
                     </button>
-                    <button className="flex-1 rounded-lg bg-pink-600 hover:bg-pink-500 text-xs py-2">
-                      Reuse
+
+                    <button
+                      onClick={() => handleDelete(post.id)}
+                      className="flex-1 rounded-lg bg-red-600 hover:bg-red-500 text-xs py-2 flex items-center justify-center gap-1"
+                    >
+                      <Trash2 size={14} /> Delete
                     </button>
                   </div>
                 </div>
