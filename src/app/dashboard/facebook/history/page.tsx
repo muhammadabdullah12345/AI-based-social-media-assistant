@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Facebook, Calendar, ImageIcon } from "lucide-react";
+import { Facebook, Calendar, ImageIcon, Edit, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 type Post = {
   id: string;
@@ -15,6 +16,7 @@ type Post = {
 export default function FacebookHistoryPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchPosts() {
@@ -31,6 +33,25 @@ export default function FacebookHistoryPage() {
 
     fetchPosts();
   }, []);
+
+  async function handleDelete(postId: string) {
+    const confirmDelete = confirm(
+      "Are you sure you want to delete this Facebook post?",
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(`/api/posts/${postId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Delete failed");
+
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+    } catch (err) {
+      alert("Failed to delete post");
+    }
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-950 via-slate-950 to-slate-900 px-6 py-12 text-white">
@@ -96,9 +117,32 @@ export default function FacebookHistoryPage() {
                   {post.content}
                 </p>
 
-                <div className="flex items-center gap-2 text-xs text-slate-500 pt-4 border-t border-slate-800">
-                  <Calendar className="h-4 w-4" />
-                  {new Date(post.createdAt).toLocaleString()}
+                {/* Meta + Actions */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <Calendar className="h-4 w-4" />
+                    {new Date(post.createdAt).toLocaleString()}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() =>
+                        router.push(`/dashboard/facebook/edit/${post.id}`)
+                      }
+                      className="flex items-center gap-1 rounded-lg bg-slate-800 hover:bg-slate-700 px-3 py-1.5 text-xs"
+                    >
+                      <Edit size={14} />
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(post.id)}
+                      className="flex items-center gap-1 rounded-lg bg-red-600 hover:bg-red-500 px-3 py-1.5 text-xs"
+                    >
+                      <Trash2 size={14} />
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.article>

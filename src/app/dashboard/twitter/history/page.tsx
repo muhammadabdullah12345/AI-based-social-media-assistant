@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Twitter, Calendar, Trash2, MessageSquare } from "lucide-react";
+import { Twitter, Calendar, Trash2, MessageSquare, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 type Post = {
   id: string;
@@ -14,6 +15,8 @@ type Post = {
 export default function TwitterHistoryPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchPosts() {
@@ -30,6 +33,22 @@ export default function TwitterHistoryPage() {
 
     fetchPosts();
   }, []);
+
+  async function handleDelete(id: string) {
+    const ok = confirm("Are you sure you want to delete this tweet?");
+    if (!ok) return;
+
+    try {
+      setDeletingId(id);
+      await fetch(`/api/posts/${id}`, { method: "DELETE" });
+      setPosts((prev) => prev.filter((post) => post.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete tweet");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-sky-950 to-slate-950 px-6 py-12 text-white">
@@ -92,13 +111,28 @@ export default function TwitterHistoryPage() {
                     {post.content.length} characters
                   </div>
 
-                  <button
-                    className="flex items-center gap-2 text-xs text-red-400 hover:text-red-300 transition"
-                    onClick={() => alert("Delete feature optional")}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </button>
+                  <div className="flex items-center gap-3">
+                    {/* Edit */}
+                    <button
+                      onClick={() =>
+                        router.push(`/dashboard/twitter/edit/${post.id}`)
+                      }
+                      className="flex items-center gap-1 text-xs text-sky-400 hover:text-sky-300 transition"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Edit
+                    </button>
+
+                    {/* Delete */}
+                    <button
+                      onClick={() => handleDelete(post.id)}
+                      disabled={deletingId === post.id}
+                      className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition disabled:opacity-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             ))}

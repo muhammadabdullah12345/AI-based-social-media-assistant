@@ -1,8 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Linkedin, Calendar, Copy, FileText } from "lucide-react";
+import {
+  Linkedin,
+  Calendar,
+  Copy,
+  FileText,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 type Post = {
   id: string;
@@ -15,6 +23,8 @@ type Post = {
 export default function LinkedinHistoryPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchPosts() {
@@ -31,6 +41,22 @@ export default function LinkedinHistoryPage() {
 
     fetchPosts();
   }, []);
+
+  async function handleDelete(id: string) {
+    const confirmDelete = confirm("Are you sure you want to delete this post?");
+    if (!confirmDelete) return;
+
+    try {
+      setDeletingId(id);
+      await fetch(`/api/posts/${id}`, { method: "DELETE" });
+      setPosts((prev) => prev.filter((post) => post.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete post");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 px-6 py-12 text-white">
@@ -65,11 +91,34 @@ export default function LinkedinHistoryPage() {
                 transition={{ delay: index * 0.05 }}
                 className="rounded-2xl border border-slate-800 bg-slate-900/80 p-8"
               >
-                {/* Meta */}
+                {/* Meta + Actions */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 text-sm text-slate-400">
                     <Calendar className="h-4 w-4" />
                     {new Date(post.createdAt).toLocaleDateString()}
+                  </div>
+
+                  <div className="flex gap-2">
+                    {/* Edit */}
+                    <button
+                      onClick={() =>
+                        router.push(`/dashboard/linkedin/edit/${post.id}`)
+                      }
+                      className="rounded-lg border border-slate-700 p-2 hover:bg-slate-800 transition"
+                      title="Edit post"
+                    >
+                      <Pencil className="h-4 w-4 text-blue-400" />
+                    </button>
+
+                    {/* Delete */}
+                    <button
+                      onClick={() => handleDelete(post.id)}
+                      disabled={deletingId === post.id}
+                      className="rounded-lg border border-slate-700 p-2 hover:bg-red-600/20 transition disabled:opacity-50"
+                      title="Delete post"
+                    >
+                      <Trash2 className="h-4 w-4 text-red-400" />
+                    </button>
                   </div>
                 </div>
 
@@ -85,7 +134,7 @@ export default function LinkedinHistoryPage() {
                 </p>
 
                 {/* Actions */}
-                <div className="mt-6 flex gap-3">
+                <div className="mt-6">
                   <button
                     onClick={() => navigator.clipboard.writeText(post.content)}
                     className="inline-flex items-center gap-2 rounded-lg border border-slate-700
