@@ -1,22 +1,29 @@
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/src/lib/prisma";
-import { authOptions } from "../../auth/[...nextauth]/route";
-import { NextResponse } from "next/server";
+import { authOptions } from "@/src/lib/authOptions";
 
-type Params = {
-  params: { id: string };
+type RouteContext = {
+  params: {
+    id: string;
+  };
 };
 
-export async function GET(req: Request, { params }: Params) {
+// ================= GET =================
+export async function GET(
+  req: NextRequest,
+  context: RouteContext,
+): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
-  if (!session) {
+
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const post = await prisma.post.findFirst({
     where: {
-      id: params.id,
-      userId: session.user?.id,
+      id: context.params.id,
+      userId: session.user.id,
     },
   });
 
@@ -27,18 +34,23 @@ export async function GET(req: Request, { params }: Params) {
   return NextResponse.json(post);
 }
 
-export async function PUT(req: Request, { params }: Params) {
+// ================= PUT =================
+export async function PUT(
+  req: NextRequest,
+  context: RouteContext,
+): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
-  if (!session) {
+
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { title, content, image } = await req.json();
 
-  const updatedPost = await prisma.post.updateMany({
+  const updated = await prisma.post.updateMany({
     where: {
-      id: params.id,
-      userId: session.user?.id,
+      id: context.params.id,
+      userId: session.user.id,
     },
     data: {
       title,
@@ -47,23 +59,28 @@ export async function PUT(req: Request, { params }: Params) {
     },
   });
 
-  if (updatedPost.count === 0) {
+  if (updated.count === 0) {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
   return NextResponse.json({ success: true });
 }
 
-export async function DELETE(req: Request, { params }: Params) {
+// ================= DELETE =================
+export async function DELETE(
+  req: NextRequest,
+  context: RouteContext,
+): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
-  if (!session) {
+
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const deleted = await prisma.post.deleteMany({
     where: {
-      id: params.id,
-      userId: session.user?.id,
+      id: context.params.id,
+      userId: session.user.id,
     },
   });
 

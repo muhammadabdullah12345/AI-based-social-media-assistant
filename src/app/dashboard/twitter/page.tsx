@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../api/auth/[...nextauth]/route";
+import { authOptions } from "@/src/lib/authoptions";
 import { redirect } from "next/navigation";
 import TwitterForm from "@/src/components/TwitterForm";
 

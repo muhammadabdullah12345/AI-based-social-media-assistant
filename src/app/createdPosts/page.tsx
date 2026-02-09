@@ -3,9 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ImageIcon, FileText, Calendar, Loader2 } from "lucide-react";
-// import { getServerSession } from "next-auth";
-// import { authOptions } from "../api/auth/[...nextauth]/route";
-// import { redirect } from "next/navigation";
 
 interface Post {
   id: string;
