@@ -19,10 +19,12 @@ model User {
 }
 
 model Post {
-  id       String @id @default(uuid())
+  id       String  @id @default(uuid())
   userId   String
   platform String
+  title    String? // Added
   content  String
+  image    String? // Added
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
