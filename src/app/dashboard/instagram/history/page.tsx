@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/authoptions";
+import { authOptions } from "@/src/lib/authOptions";
 import { redirect } from "next/navigation";
 import InstagramPostHistory from "@/src/components/InstagramHistory";
 

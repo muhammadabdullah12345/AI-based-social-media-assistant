@@ -3,16 +3,10 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/src/lib/prisma";
 import { authOptions } from "@/src/lib/authOptions";
 
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
 // ================= GET =================
 export async function GET(
   req: NextRequest,
-  context: RouteContext,
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
 
@@ -20,9 +14,11 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = await params;
+
   const post = await prisma.post.findFirst({
     where: {
-      id: context.params.id,
+      id: id,
       userId: session.user.id,
     },
   });
@@ -37,7 +33,7 @@ export async function GET(
 // ================= PUT =================
 export async function PUT(
   req: NextRequest,
-  context: RouteContext,
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
 
@@ -45,11 +41,12 @@ export async function PUT(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = await params;
   const { title, content, image } = await req.json();
 
   const updated = await prisma.post.updateMany({
     where: {
-      id: context.params.id,
+      id: id,
       userId: session.user.id,
     },
     data: {
@@ -69,7 +66,7 @@ export async function PUT(
 // ================= DELETE =================
 export async function DELETE(
   req: NextRequest,
-  context: RouteContext,
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const session = await getServerSession(authOptions);
 
@@ -77,9 +74,11 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = await params;
+
   const deleted = await prisma.post.deleteMany({
     where: {
-      id: context.params.id,
+      id: id,
       userId: session.user.id,
     },
   });

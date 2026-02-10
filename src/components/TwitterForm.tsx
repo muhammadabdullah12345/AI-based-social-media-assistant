@@ -91,7 +91,7 @@ export default function TwitterForm() {
     setIsSaving(true);
 
     try {
-      await savePost(selectedPost.title, selectedPost.content, null, platform);
+      await savePost(selectedPost.title, selectedPost.content, "", platform);
 
       alert("Twitter post saved successfully!");
       setPostOptions([]);

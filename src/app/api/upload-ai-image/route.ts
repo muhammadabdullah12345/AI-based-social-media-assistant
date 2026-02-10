@@ -1,6 +1,6 @@
 import cloudinary from "@/src/lib/cloudinary";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/authoptions";
+import { authOptions } from "@/src/lib/authOptions";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
