@@ -19,14 +19,12 @@ model User {
 }
 
 model Post {
-  id       String  @id @default(uuid())
-  userId   String
-  platform String
-  title    String? // Added
-  content  String
-  image    String? // Added
-
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  image     String?
+  platform  String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
 }
