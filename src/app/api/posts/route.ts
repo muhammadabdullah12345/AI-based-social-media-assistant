@@ -8,7 +8,8 @@ export async function POST(req: Request) {
   if (!session)
     return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { title, content, image, platform } = await req.json();
+  const { title, content, image, platform, sourceType, documentId } =
+    await req.json();
 
   const post = await prisma.post.create({
     data: {
@@ -16,7 +17,9 @@ export async function POST(req: Request) {
       content,
       image,
       platform,
-      userId: session.user?.id,
+      sourceType,
+      documentId,
+      userId: session.user.id,
     },
   });
 

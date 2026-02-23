@@ -140,7 +140,7 @@ export default function InstagramPostHistory() {
                       className="flex-1 rounded-lg bg-red-600 hover:bg-red-500 text-xs py-2 flex items-center justify-center gap-1"
                     >
                       <Trash2 size={14} /> Delete
-                    </button>
+                    </button>z
                   </div>
                 </div>
               </div>

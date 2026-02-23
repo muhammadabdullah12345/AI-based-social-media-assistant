@@ -1,7 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  // engineType = "binary"
-  // output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -10,21 +8,45 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String?
-  email     String   @unique
+  email     String     @unique
   password  String
   posts     Post[]
-  createdAt DateTime @default(now())
+  documents Document[]
+  createdAt DateTime   @default(now())
 }
 
 model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  image     String?
-  platform  String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       String  @id @default(cuid())
+  title    String
+  content  String
+  image    String?
+  platform String
+
+  sourceType String // "manual" | "document"
+  documentId String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
+}
+
+model Document {
+  id        String          @id @default(cuid())
+  filename  String
+  fileType  String
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks    DocumentChunk[]
+  createdAt DateTime        @default(now())
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  content    String
+  embedding  Json
 }

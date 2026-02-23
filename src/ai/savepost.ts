@@ -3,6 +3,8 @@ export const savePost = async (
   content: string,
   image: string,
   platform: string,
+  sourceType: string,
+  documentId?: string,
 ) => {
   const res = await fetch("/api/posts", {
     method: "POST",
@@ -12,9 +14,10 @@ export const savePost = async (
       content,
       image,
       platform,
+      sourceType,
+      documentId,
     }),
   });
 
-  if (!res.ok) throw new Error("Failed to save post");
-  return res.json();
+  if (!res.ok) throw new Error("Save failed");
 };
