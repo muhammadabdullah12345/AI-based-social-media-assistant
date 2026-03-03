@@ -1,11 +1,14 @@
+// src/components/InstagramHistory.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import { Instagram, ImageIcon, Router } from "lucide-react";
+import { Instagram, ImageIcon } from "lucide-react";
 import { motion } from "framer-motion";
-import { Trash2, Edit } from "lucide-react";
+import { Trash2, Edit, Send } from "lucide-react";
 import { deletePost } from "@/src/ai/postActions";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import PublishModal from "./PublishModal";
+import PostStatusBadge from "./PostStatusBadge";
 
 type Post = {
   id: string;
@@ -13,27 +16,32 @@ type Post = {
   content: string;
   image?: string;
   createdAt: string;
+  status?: string;
+  scheduledAt?: string;
+  publishedAt?: string;
 };
 
 export default function InstagramPostHistory() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [publishingPost, setPublishingPost] = useState<Post | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    async function fetchPosts() {
-      try {
-        const res = await fetch("/api/posts?platform=instagram");
-        const data = await res.json();
-        setPosts(data);
-      } catch (err) {
-        console.error("Failed to fetch posts", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchPosts();
   }, []);
+
+  async function fetchPosts() {
+    try {
+      const res = await fetch("/api/posts?platform=instagram");
+      const data = await res.json();
+      setPosts(data);
+    } catch (err) {
+      console.error("Failed to fetch posts", err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleDelete(id: string) {
     const confirmDelete = confirm("Are you sure you want to delete this post?");
@@ -45,6 +53,11 @@ export default function InstagramPostHistory() {
     } catch (err) {
       alert("Failed to delete post");
     }
+  }
+
+  function handlePublished() {
+    fetchPosts(); // Refresh list to show updated status
+    setPublishingPost(null);
   }
 
   return (
@@ -63,21 +76,18 @@ export default function InstagramPostHistory() {
               </p>
             </div>
           </div>
-
           <div className="text-sm text-slate-400">
             Total Posts:{" "}
             <span className="text-white font-medium">{posts.length}</span>
           </div>
         </header>
 
-        {/* Loading State */}
         {loading && (
           <div className="text-center text-slate-400 mt-20">
             Loading your Instagram posts...
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && posts.length === 0 && (
           <div className="mt-20 flex flex-col items-center text-center text-slate-400">
             <ImageIcon className="h-12 w-12 mb-4 opacity-50" />
@@ -88,7 +98,6 @@ export default function InstagramPostHistory() {
           </div>
         )}
 
-        {/* Posts Grid */}
         {!loading && posts.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -98,9 +107,8 @@ export default function InstagramPostHistory() {
             {posts.map((post) => (
               <div
                 key={post.id}
-                className="rounded-2xl bg-slate-900/80 border border-slate-800 overflow-hidden hover:shadow-xl transition"
+                className="rounded-2xl bg-slate-900/80 border border-slate-800 overflow-hidden hover:shadow-xl transition flex flex-col"
               >
-                {/* Image */}
                 {post.image && (
                   <img
                     src={post.image}
@@ -109,35 +117,53 @@ export default function InstagramPostHistory() {
                   />
                 )}
 
-                {/* Content */}
-                <div className="p-5">
+                <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-pink-400 font-medium">
                       Instagram
                     </span>
-                    <span className="text-xs text-slate-400">
-                      {new Date(post.createdAt).toLocaleDateString()}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <PostStatusBadge
+                        status={(post.status ?? "draft") as any}
+                      />
+                      <span className="text-xs text-slate-400">
+                        {new Date(post.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
 
-                  <p className="text-sm text-slate-300 line-clamp-4 whitespace-pre-line">
+                  {post.scheduledAt && post.status === "scheduled" && (
+                    <p className="text-xs text-blue-400 mb-2">
+                      Scheduled: {new Date(post.scheduledAt).toLocaleString()}
+                    </p>
+                  )}
+
+                  <p className="text-sm text-slate-300 line-clamp-4 whitespace-pre-line flex-1">
                     {post.content}
                   </p>
 
-                  {/* Actions */}
-                  <div className="mt-4 flex gap-3">
+                  <div className="mt-4 grid grid-cols-3 gap-2">
                     <button
                       onClick={() =>
-                        redirect(`/dashboard/instagram/edit/${post.id}`)
+                        router.push(`/dashboard/instagram/edit/${post.id}`)
                       }
-                      className="flex-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2 flex items-center justify-center gap-1"
+                      className="rounded-lg bg-slate-800 hover:bg-slate-700 text-xs py-2 flex items-center justify-center gap-1"
                     >
                       <Edit size={14} /> Edit
                     </button>
 
                     <button
+                      onClick={() => setPublishingPost(post)}
+                      disabled={post.status === "published"}
+                      className="rounded-lg bg-pink-600 hover:bg-pink-500 disabled:opacity-40 disabled:cursor-not-allowed text-xs py-2 flex items-center justify-center gap-1"
+                    >
+                      <Send size={14} />
+                      {post.status === "published" ? "Published" : "Publish"}
+                    </button>
+
+                    <button
                       onClick={() => handleDelete(post.id)}
-                      className="flex-1 rounded-lg bg-red-600 hover:bg-red-500 text-xs py-2 flex items-center justify-center gap-1"
+                      className="rounded-lg bg-red-600 hover:bg-red-500 text-xs py-2 flex items-center justify-center gap-1"
                     >
                       <Trash2 size={14} /> Delete
                     </button>
@@ -148,6 +174,17 @@ export default function InstagramPostHistory() {
           </motion.div>
         )}
       </section>
+
+      {/* Publish Modal */}
+      {publishingPost && (
+        <PublishModal
+          postId={publishingPost.id}
+          platform="instagram"
+          isOpen={!!publishingPost}
+          onClose={() => setPublishingPost(null)}
+          onPublished={handlePublished}
+        />
+      )}
     </main>
   );
 }

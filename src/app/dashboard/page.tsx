@@ -1,7 +1,8 @@
+// src/app/dashboard/page.tsx
 "use client";
 
 import Link from "next/link";
-import { Instagram, Linkedin, Twitter, Facebook } from "lucide-react";
+import { Instagram, Linkedin, Twitter, Facebook, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 
 const platforms = [
@@ -48,11 +49,20 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-6 py-16 text-white">
       <section className="mx-auto max-w-6xl">
         {/* Header */}
-        <header className="mb-14 text-center">
-          <h1 className="text-4xl font-bold">Choose a Platform</h1>
-          <p className="mt-3 text-slate-400 text-lg">
-            Select where you want to generate AI-powered content
-          </p>
+        <header className="mb-14 flex items-center justify-between">
+          <div className="text-center flex-1">
+            <h1 className="text-4xl font-bold">Choose a Platform</h1>
+            <p className="mt-3 text-slate-400 text-lg">
+              Select where you want to generate AI-powered content
+            </p>
+          </div>
+          <Link
+            href="/dashboard/settings"
+            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
+          >
+            <Settings className="h-4 w-4" />
+            Connected Accounts
+          </Link>
         </header>
 
         {/* Platform Grid */}
@@ -69,23 +79,17 @@ export default function DashboardPage() {
               >
                 <Link href={platform.href}>
                   <div className="group h-full cursor-pointer rounded-2xl border border-slate-800 bg-slate-900/70 p-6 backdrop-blur-xl transition-all hover:border-slate-700 hover:shadow-2xl">
-                    {/* Icon */}
                     <div
                       className={`mb-6 inline-flex rounded-xl p-4 ${platform.bg}`}
                     >
                       <Icon className="h-7 w-7 text-white" />
                     </div>
-
-                    {/* Text */}
                     <h2 className="text-xl font-semibold mb-2">
                       {platform.name}
                     </h2>
-
                     <p className="text-slate-400 text-sm leading-relaxed mb-6">
                       {platform.description}
                     </p>
-
-                    {/* CTA */}
                     <div className="mt-auto">
                       <div
                         className={`inline-flex items-center justify-center rounded-lg bg-gradient-to-r ${platform.color} px-4 py-2 text-sm font-medium transition-transform group-hover:scale-105`}

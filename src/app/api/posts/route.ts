@@ -1,3 +1,5 @@
+// src/app/api/posts/route.ts
+
 import { getServerSession } from "next-auth";
 import { prisma } from "@/src/lib/prisma";
 import { authOptions } from "@/src/lib/authOptions";
@@ -19,6 +21,7 @@ export async function POST(req: Request) {
       platform,
       sourceType,
       documentId,
+      status: "draft",
       userId: session.user.id,
     },
   });

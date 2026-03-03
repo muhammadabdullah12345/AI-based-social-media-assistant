@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  name      String?
-  email     String     @unique
-  password  String
-  posts     Post[]
-  documents Document[]
-  createdAt DateTime   @default(now())
+  id             String          @id @default(cuid())
+  name           String?
+  email          String          @unique
+  password       String
+  posts          Post[]
+  documents      Document[]
+  socialAccounts SocialAccount[]
+  createdAt      DateTime        @default(now())
 }
 
 model Post {
@@ -26,6 +27,13 @@ model Post {
 
   sourceType String // "manual" | "document"
   documentId String?
+
+  // Publishing fields
+  status         String    @default("draft") // "draft" | "published" | "scheduled" | "failed"
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+  platformPostId String? // ID returned by Facebook/Instagram after publishing
+  publishError   String? // Store error message if publish failed
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -49,4 +57,35 @@ model DocumentChunk {
   document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   content    String
   embedding  Json
+}
+
+// Stores connected Facebook Pages and Instagram Accounts per user
+model SocialAccount {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  platform    String // "facebook" | "instagram"
+  accountId   String // Facebook Page ID or Instagram Business Account ID
+  accountName String // Display name
+  accessToken String // Long-lived page access token
+  tokenExpiry DateTime?
+  pageId      String? // Facebook Page ID (needed for Instagram too)
+  igAccountId String? // Instagram Business Account ID
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, platform, accountId])
+}
+
+// Tracks scheduled posts for the cron job
+model ScheduledPost {
+  id          String   @id @default(cuid())
+  postId      String   @unique
+  userId      String
+  platform    String
+  scheduledAt DateTime
+  status      String   @default("pending") // "pending" | "published" | "failed"
+  createdAt   DateTime @default(now())
 }
