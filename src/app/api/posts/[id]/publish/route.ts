@@ -1,5 +1,4 @@
 // src/app/api/posts/[id]/publish/route.ts
-// Handles both "Publish Now" and "Schedule" for Facebook & Instagram
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -17,11 +16,9 @@ export async function POST(
   }
 
   const { id: postId } = await params;
-
-  // Body: { action: "now" | "schedule", scheduledAt?: string, socialAccountId: string }
   const { action, scheduledAt, socialAccountId } = await req.json();
 
-  // 1. Fetch the post
+  // Fetch the post
   const post = await prisma.post.findFirst({
     where: { id: postId, userId: session.user.id },
   });
@@ -30,22 +27,19 @@ export async function POST(
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
-  // 2. Fetch the social account
+  // Fetch the social account
   const account = await prisma.socialAccount.findFirst({
     where: { id: socialAccountId, userId: session.user.id },
   });
 
   if (!account) {
     return NextResponse.json(
-      {
-        error:
-          "Social account not found or not connected. Please connect your account first.",
-      },
+      { error: "Social account not found. Please connect your account first." },
       { status: 404 },
     );
   }
 
-  // 3. Handle scheduling (just save to DB, cron will handle it)
+  // ── SCHEDULE ─────────────────────────────────────────────────────────
   if (action === "schedule") {
     if (!scheduledAt) {
       return NextResponse.json(
@@ -55,6 +49,14 @@ export async function POST(
     }
 
     const scheduleDate = new Date(scheduledAt);
+
+    if (isNaN(scheduleDate.getTime())) {
+      return NextResponse.json(
+        { error: "Invalid date format" },
+        { status: 400 },
+      );
+    }
+
     if (scheduleDate <= new Date()) {
       return NextResponse.json(
         { error: "Scheduled time must be in the future" },
@@ -68,16 +70,18 @@ export async function POST(
       data: {
         status: "scheduled",
         scheduledAt: scheduleDate,
+        publishError: null,
       },
     });
 
-    // Save to ScheduledPost table
+    // Upsert ScheduledPost — store socialAccountId so cron knows which account to use
     await prisma.scheduledPost.upsert({
       where: { postId },
       update: {
         scheduledAt: scheduleDate,
         status: "pending",
         platform: post.platform,
+        socialAccountId,
       },
       create: {
         postId,
@@ -85,6 +89,7 @@ export async function POST(
         platform: post.platform,
         scheduledAt: scheduleDate,
         status: "pending",
+        socialAccountId,
       },
     });
 
@@ -94,7 +99,7 @@ export async function POST(
     });
   }
 
-  // 4. Publish Now
+  // ── PUBLISH NOW ───────────────────────────────────────────────────────
   try {
     let platformPostId: string;
 
@@ -105,7 +110,6 @@ export async function POST(
           { status: 400 },
         );
       }
-
       platformPostId = await publishToFacebook({
         pageId: account.pageId,
         pageAccessToken: account.accessToken,
@@ -117,22 +121,20 @@ export async function POST(
         return NextResponse.json(
           {
             error:
-              "No Instagram Business Account linked. Make sure your Instagram account is a Business account and linked to your Facebook Page.",
+              "No Instagram Business Account linked. Make sure your Instagram is a Business account connected to a Facebook Page.",
           },
           { status: 400 },
         );
       }
-
       if (!post.image) {
         return NextResponse.json(
           {
             error:
-              "Instagram requires an image to publish. Please regenerate with an image.",
+              "Instagram requires an image. Please regenerate the post with an image.",
           },
           { status: 400 },
         );
       }
-
       platformPostId = await publishToInstagram({
         igAccountId: account.igAccountId,
         pageAccessToken: account.accessToken,
@@ -146,7 +148,7 @@ export async function POST(
       );
     }
 
-    // Update post in DB
+    // Update post
     await prisma.post.update({
       where: { id: postId },
       data: {
@@ -165,13 +167,9 @@ export async function POST(
   } catch (err: any) {
     console.error("[Publish Error]", err);
 
-    // Save error to DB
     await prisma.post.update({
       where: { id: postId },
-      data: {
-        status: "failed",
-        publishError: err.message,
-      },
+      data: { status: "failed", publishError: err.message },
     });
 
     return NextResponse.json(

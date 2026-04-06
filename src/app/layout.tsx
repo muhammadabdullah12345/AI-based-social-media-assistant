@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import Navbar1 from "../components/Navbar1";
+import CronInitializer from "../components/CronInitializer";
 
 export const metadata: Metadata = {
   title: "Generatify",
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
+          <CronInitializer />
           <Navbar1 />
           {children}
         </Providers>

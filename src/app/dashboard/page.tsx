@@ -2,7 +2,14 @@
 "use client";
 
 import Link from "next/link";
-import { Instagram, Linkedin, Twitter, Facebook, Settings } from "lucide-react";
+import {
+  Instagram,
+  Linkedin,
+  Twitter,
+  Facebook,
+  Settings,
+  Calendar,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 const platforms = [
@@ -58,10 +65,17 @@ export default function DashboardPage() {
           </div>
           <Link
             href="/dashboard/settings"
-            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
+            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition "
           >
             <Settings className="h-4 w-4" />
             Connected Accounts
+          </Link>
+          <Link
+            href="/dashboard/scheduled"
+            className=" flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
+          >
+            <Calendar className="h-4 w-4" />
+            Scheduled Posts
           </Link>
         </header>
 

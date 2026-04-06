@@ -81,11 +81,12 @@ model SocialAccount {
 
 // Tracks scheduled posts for the cron job
 model ScheduledPost {
-  id          String   @id @default(cuid())
-  postId      String   @unique
-  userId      String
-  platform    String
-  scheduledAt DateTime
-  status      String   @default("pending") // "pending" | "published" | "failed"
-  createdAt   DateTime @default(now())
+  id              String   @id @default(cuid())
+  postId          String   @unique
+  userId          String
+  platform        String
+  scheduledAt     DateTime
+  status          String   @default("pending") // "pending" | "processing" | "published" | "failed"
+  socialAccountId String? // Which account to publish to
+  createdAt       DateTime @default(now())
 }
