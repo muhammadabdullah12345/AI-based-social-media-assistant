@@ -2,6 +2,7 @@
 
 import { prisma } from "@/src/lib/prisma";
 import { publishToFacebook, publishToInstagram } from "@/src/lib/meta";
+import { syncAnalyticsForUser } from "./syncAnalytics";
 
 export async function publishDueScheduledPosts() {
   const now = new Date();
@@ -105,6 +106,16 @@ export async function publishDueScheduledPosts() {
       });
 
       failed++;
+    }
+  }
+
+  // Auto-sync analytics for all affected users
+  const affectedUserIds = [...new Set(duePosts.map((p) => p.userId))];
+  for (const uid of affectedUserIds) {
+    try {
+      await syncAnalyticsForUser(uid);
+    } catch (err) {
+      console.error(`[Scheduler] Analytics sync failed for user ${uid}:`, err);
     }
   }
 

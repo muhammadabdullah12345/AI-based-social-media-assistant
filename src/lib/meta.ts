@@ -52,6 +52,8 @@ export async function getInstagramAccountId(
 }
 
 // ── Publish to Facebook Page ─────────────────────────────────────────
+// Replace just the publishToFacebook function in src/lib/meta.ts
+
 export async function publishToFacebook({
   pageId,
   pageAccessToken,
@@ -65,47 +67,67 @@ export async function publishToFacebook({
   imageUrl?: string | null;
   scheduledPublishTime?: Date;
 }): Promise<string> {
-  let endpoint: string;
-  let body: Record<string, any>;
-
   if (imageUrl) {
-    endpoint = `${META_API_BASE}/${pageId}/photos`;
-    body = {
+    // When posting a photo, we need to get the POST id, not the photo id
+    // photo endpoint returns { id: "photoId", post_id: "pageId_postId" }
+    const body: Record<string, any> = {
       message,
       url: imageUrl,
       access_token: pageAccessToken,
       published: scheduledPublishTime ? false : true,
     };
+
     if (scheduledPublishTime) {
       body.scheduled_publish_time = Math.floor(
         scheduledPublishTime.getTime() / 1000,
       );
     }
+
+    const res = await fetch(
+      `https://graph.facebook.com/v19.0/${pageId}/photos`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      },
+    );
+
+    const data = await res.json();
+    console.log("[FB Publish] Photo response:", JSON.stringify(data));
+
+    if (data.error)
+      throw new Error(`Facebook publish error: ${data.error.message}`);
+
+    // Use post_id if available (this is the ID that works with insights)
+    // Fall back to id (photo id) if post_id not returned
+    return data.post_id ?? data.id;
   } else {
-    endpoint = `${META_API_BASE}/${pageId}/feed`;
-    body = {
+    // Text-only post
+    const body: Record<string, any> = {
       message,
       access_token: pageAccessToken,
     };
+
     if (scheduledPublishTime) {
       body.published = false;
       body.scheduled_publish_time = Math.floor(
         scheduledPublishTime.getTime() / 1000,
       );
     }
+
+    const res = await fetch(`https://graph.facebook.com/v19.0/${pageId}/feed`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    console.log("[FB Publish] Feed response:", JSON.stringify(data));
+
+    if (data.error)
+      throw new Error(`Facebook publish error: ${data.error.message}`);
+    return data.id;
   }
-
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-
-  const data = await res.json();
-  if (data.error)
-    throw new Error(`Facebook publish error: ${data.error.message}`);
-
-  return data.id || data.post_id;
 }
 
 // ── Publish to Instagram ─────────────────────────────────────────────

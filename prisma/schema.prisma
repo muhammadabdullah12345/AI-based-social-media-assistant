@@ -19,26 +19,39 @@ model User {
 }
 
 model Post {
-  id       String  @id @default(cuid())
-  title    String
-  content  String
-  image    String?
-  platform String
-
-  sourceType String // "manual" | "document"
-  documentId String?
-
-  // Publishing fields
-  status         String    @default("draft") // "draft" | "published" | "scheduled" | "failed"
+  id             String         @id @default(cuid())
+  title          String
+  content        String
+  image          String?
+  platform       String
+  sourceType     String
+  documentId     String?
+  status         String         @default("draft")
   scheduledAt    DateTime?
   publishedAt    DateTime?
-  platformPostId String? // ID returned by Facebook/Instagram after publishing
-  publishError   String? // Store error message if publish failed
+  platformPostId String?
+  publishError   String?
+  userId         String
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analytics      PostAnalytics?
+  createdAt      DateTime       @default(now())
+}
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
+model PostAnalytics {
+  id             String   @id @default(cuid())
+  postId         String   @unique
+  post           Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  platform       String
+  impressions    Int      @default(0)
+  reach          Int      @default(0)
+  likes          Int      @default(0)
+  comments       Int      @default(0)
+  shares         Int      @default(0)
+  saves          Int      @default(0)
+  clicks         Int      @default(0)
+  engagementRate Float    @default(0)
+  lastSyncedAt   DateTime @default(now())
+  createdAt      DateTime @default(now())
 }
 
 model Document {
@@ -59,34 +72,30 @@ model DocumentChunk {
   embedding  Json
 }
 
-// Stores connected Facebook Pages and Instagram Accounts per user
 model SocialAccount {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  platform    String // "facebook" | "instagram"
-  accountId   String // Facebook Page ID or Instagram Business Account ID
-  accountName String // Display name
-  accessToken String // Long-lived page access token
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform    String
+  accountId   String
+  accountName String
+  accessToken String
   tokenExpiry DateTime?
-  pageId      String? // Facebook Page ID (needed for Instagram too)
-  igAccountId String? // Instagram Business Account ID
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  pageId      String?
+  igAccountId String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@unique([userId, platform, accountId])
 }
 
-// Tracks scheduled posts for the cron job
 model ScheduledPost {
   id              String   @id @default(cuid())
   postId          String   @unique
   userId          String
   platform        String
   scheduledAt     DateTime
-  status          String   @default("pending") // "pending" | "processing" | "published" | "failed"
-  socialAccountId String? // Which account to publish to
+  status          String   @default("pending")
+  socialAccountId String?
   createdAt       DateTime @default(now())
 }

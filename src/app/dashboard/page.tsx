@@ -9,6 +9,7 @@ import {
   Facebook,
   Settings,
   Calendar,
+  BarChart2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -76,6 +77,13 @@ export default function DashboardPage() {
           >
             <Calendar className="h-4 w-4" />
             Scheduled Posts
+          </Link>
+          <Link
+            href="/dashboard/analytics"
+            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
+          >
+            <BarChart2 className="h-4 w-4" />
+            Analytics
           </Link>
         </header>
 

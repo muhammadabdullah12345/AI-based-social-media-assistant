@@ -10,16 +10,17 @@ export async function GET(req: NextRequest) {
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
   const redirectUri = `${APP_URL}/api/auth/facebook/callback`;
 
-  // Minimal scopes that work in Dev mode without app review
-  // business_management removed — it causes issues and is not needed
   const scope = [
     "email",
     "public_profile",
     "pages_show_list",
     "pages_read_engagement",
     "pages_manage_posts",
+    "pages_read_user_content", // ← needed to read post reactions/comments
     "instagram_basic",
     "instagram_content_publish",
+    "instagram_manage_insights", // ← needed for IG insights (requires app review for others)
+    "read_insights", // ← needed for FB page insights
   ].join(",");
 
   const state = Buffer.from(JSON.stringify({ platform })).toString("base64");
