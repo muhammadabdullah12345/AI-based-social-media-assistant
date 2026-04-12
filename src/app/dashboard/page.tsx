@@ -10,6 +10,7 @@ import {
   Settings,
   Calendar,
   BarChart2,
+  BookOpen,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -84,6 +85,13 @@ export default function DashboardPage() {
           >
             <BarChart2 className="h-4 w-4" />
             Analytics
+          </Link>
+          <Link
+            href="/dashboard/categories"
+            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
+          >
+            <BookOpen className="h-4 w-4" />
+            Categories
           </Link>
         </header>
 

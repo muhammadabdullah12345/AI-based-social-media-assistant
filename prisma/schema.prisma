@@ -15,6 +15,7 @@ model User {
   posts          Post[]
   documents      Document[]
   socialAccounts SocialAccount[]
+  categories     Category[] // ← ADD THIS
   createdAt      DateTime        @default(now())
 }
 
@@ -55,13 +56,14 @@ model PostAnalytics {
 }
 
 model Document {
-  id        String          @id @default(cuid())
-  filename  String
-  fileType  String
-  userId    String
-  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chunks    DocumentChunk[]
-  createdAt DateTime        @default(now())
+  id                String             @id @default(cuid())
+  filename          String
+  fileType          String
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks            DocumentChunk[]
+  categoryDocuments CategoryDocument[] // ← ADD THIS
+  createdAt         DateTime           @default(now())
 }
 
 model DocumentChunk {
@@ -98,4 +100,42 @@ model ScheduledPost {
   status          String   @default("pending")
   socialAccountId String?
   createdAt       DateTime @default(now())
+}
+
+// Add these models to your existing schema
+
+model Category {
+  id          String             @id @default(cuid())
+  name        String // "cooking", "sports", "fitness" etc
+  displayName String // "Cooking & Food", "Sports & Fitness"
+  description String?
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  examples    CategoryExample[]
+  documents   CategoryDocument[]
+  createdAt   DateTime           @default(now())
+
+  @@unique([userId, name])
+}
+
+// Custom post examples you add for each category
+model CategoryExample {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  title      String
+  content    String // The example post content
+  tone       String // "casual", "professional" etc
+  platform   String // "instagram", "facebook"
+  createdAt  DateTime @default(now())
+}
+
+// Documents uploaded specifically for a category
+model CategoryDocument {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 }
