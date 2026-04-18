@@ -11,6 +11,7 @@ import {
   Calendar,
   BarChart2,
   BookOpen,
+  GitCompare,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -92,6 +93,13 @@ export default function DashboardPage() {
           >
             <BookOpen className="h-4 w-4" />
             Categories
+          </Link>
+          <Link
+            href="/dashboard/compare"
+            className="flex items-center gap-2 rounded-xl border border-violet-800 bg-violet-900/30 px-4 py-2.5 text-sm text-violet-300 hover:bg-violet-800/40 transition"
+          >
+            <GitCompare className="h-4 w-4" />
+            RAG Comparison
           </Link>
         </header>
 
