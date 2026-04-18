@@ -59,48 +59,53 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-6 py-16 text-white">
       <section className="mx-auto max-w-6xl">
         {/* Header */}
-        <header className="mb-14 flex items-center justify-between">
-          <div className="text-center flex-1">
+        <header className="mb-14 flex flex-col items-center gap-6">
+          {/* Title block — always centered */}
+          <div className="text-center">
             <h1 className="text-4xl font-bold">Choose a Platform</h1>
             <p className="mt-3 text-slate-400 text-lg">
               Select where you want to generate AI-powered content
             </p>
           </div>
-          <Link
-            href="/dashboard/settings"
-            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition "
-          >
-            <Settings className="h-4 w-4" />
-            Connected Accounts
-          </Link>
-          <Link
-            href="/dashboard/scheduled"
-            className=" flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
-          >
-            <Calendar className="h-4 w-4" />
-            Scheduled Posts
-          </Link>
-          <Link
-            href="/dashboard/analytics"
-            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
-          >
-            <BarChart2 className="h-4 w-4" />
-            Analytics
-          </Link>
-          <Link
-            href="/dashboard/categories"
-            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
-          >
-            <BookOpen className="h-4 w-4" />
-            Categories
-          </Link>
-          <Link
-            href="/dashboard/compare"
-            className="flex items-center gap-2 rounded-xl border border-violet-800 bg-violet-900/30 px-4 py-2.5 text-sm text-violet-300 hover:bg-violet-800/40 transition"
-          >
-            <GitCompare className="h-4 w-4" />
-            RAG Comparison
-          </Link>
+
+          {/* Nav links — wrap on smaller screens */}
+          <nav className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/dashboard/settings"
+              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
+            >
+              <Settings className="h-4 w-4" />
+              Connected Accounts
+            </Link>
+            <Link
+              href="/dashboard/scheduled"
+              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
+            >
+              <Calendar className="h-4 w-4" />
+              Scheduled Posts
+            </Link>
+            <Link
+              href="/dashboard/analytics"
+              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
+            >
+              <BarChart2 className="h-4 w-4" />
+              Analytics
+            </Link>
+            <Link
+              href="/dashboard/categories"
+              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
+            >
+              <BookOpen className="h-4 w-4" />
+              Categories
+            </Link>
+            <Link
+              href="/dashboard/compare"
+              className="flex items-center gap-2 rounded-xl border border-violet-800 bg-violet-900/30 px-4 py-2.5 text-sm text-violet-300 hover:bg-violet-800/40 transition"
+            >
+              <GitCompare className="h-4 w-4" />
+              RAG Comparison
+            </Link>
+          </nav>
         </header>
 
         {/* Platform Grid */}
