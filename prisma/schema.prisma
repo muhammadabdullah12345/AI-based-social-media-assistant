@@ -139,3 +139,12 @@ model CategoryDocument {
   document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
 }
+
+model Feedback {
+  id        String   @id @default(cuid())
+  rating    Int
+  category  String
+  comment   String
+  page      String
+  createdAt DateTime @default(now())
+}
