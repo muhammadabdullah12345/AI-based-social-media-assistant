@@ -76,6 +76,9 @@ export default function FeedbackWidget() {
     }, 300);
   }
 
+  // Derive the active star level for display — hover takes priority over selection
+  const activeRating = hoveredRating ?? rating ?? 0;
+
   return (
     <>
       {/* Floating Button */}
@@ -140,32 +143,47 @@ export default function FeedbackWidget() {
                         How would you rate your overall experience?
                       </p>
 
-                      {/* Stars */}
-                      <div className="flex gap-2 justify-center py-2">
-                        {([1, 2, 3, 4, 5] as Rating[]).map((star) => (
-                          <button
-                            key={star}
-                            onMouseEnter={() => setHoveredRating(star)}
-                            onMouseLeave={() => setHoveredRating(null)}
-                            onClick={() => setRating(star)}
-                            className="transition-transform hover:scale-110"
-                          >
-                            <Star
-                              className={`h-8 w-8 transition-colors ${
-                                star <= (hoveredRating ?? rating ?? 0)
-                                  ? "text-yellow-400 fill-yellow-400"
-                                  : "text-slate-600"
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
+                      {/* Stars + label: fixed-height container so layout never shifts */}
+                      <div className="py-2">
+                        <div
+                          className="flex gap-2 justify-center"
+                          onMouseLeave={() => setHoveredRating(null)}
+                        >
+                          {([1, 2, 3, 4, 5] as Rating[]).map((star) => (
+                            <button
+                              key={star}
+                              onMouseEnter={() => setHoveredRating(star)}
+                              onClick={() => setRating(star)}
+                              className="transition-transform hover:scale-110"
+                            >
+                              <Star
+                                className={`h-8 w-8 transition-colors ${
+                                  star <= activeRating
+                                    ? "text-yellow-400 fill-yellow-400"
+                                    : "text-slate-600"
+                                }`}
+                              />
+                            </button>
+                          ))}
+                        </div>
 
-                      {(hoveredRating || rating) && (
-                        <p className="text-center text-xs text-yellow-400 font-medium">
-                          {ratingLabels[hoveredRating ?? rating!]}
+                        {/*
+                          Always rendered — never mounts/unmounts.
+                          Uses `invisible` to hold its space when there's nothing to show,
+                          preventing any layout shift that caused the flicker.
+                        */}
+                        <p
+                          className={`text-center text-xs font-medium mt-2 h-4 transition-colors ${
+                            activeRating
+                              ? "text-yellow-400 visible"
+                              : "invisible"
+                          }`}
+                        >
+                          {activeRating
+                            ? ratingLabels[activeRating as Rating]
+                            : ""}
                         </p>
-                      )}
+                      </div>
 
                       <button
                         onClick={() => rating && setStep("detail")}
