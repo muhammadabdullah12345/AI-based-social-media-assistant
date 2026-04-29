@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { uploadAIImage } from "@/src/ai/upload_ai_image";
 import { savePost } from "@/src/ai/savepost";
 import {
@@ -30,6 +30,19 @@ export default function FacebookForm() {
   const [mode, setMode] = useState<Mode>("form");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Category state (ported from Instagram form)
+  const [categories, setCategories] = useState<
+    { id: string; name: string; displayName: string }[]
+  >([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [useCategory, setUseCategory] = useState(false);
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then(setCategories)
+      .catch(console.error);
+  }, []);
 
   // Form mode state
   const [topic, setTopic] = useState("");
@@ -76,19 +89,39 @@ export default function FacebookForm() {
     setSelectedIndex(null);
 
     try {
-      const res = await fetch("/api/generate-post", {
+      const endpoint =
+        useCategory && selectedCategoryId
+          ? "/api/generate-post-with-category"
+          : "/api/generate-post";
+
+      const body =
+        useCategory && selectedCategoryId
+          ? {
+              topic,
+              targetAudience,
+              tone,
+              platform,
+              emojiStatus: getEmojiStatus(emojiLevel),
+              cta,
+              postLength,
+              variations: 3,
+              categoryId: selectedCategoryId,
+            }
+          : {
+              topic,
+              targetAudience,
+              tone,
+              platform,
+              emojiStatus: getEmojiStatus(emojiLevel),
+              cta,
+              postLength,
+              variations: 3,
+            };
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic,
-          targetAudience,
-          tone,
-          platform,
-          emojiStatus: getEmojiStatus(emojiLevel),
-          cta,
-          postLength,
-          variations: 3,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       setPostOptions(data.posts);
@@ -331,6 +364,66 @@ export default function FacebookForm() {
                     {emojiLabels[emojiLevel]}
                   </div>
                 </div>
+              </div>
+
+              {/* Category Selection Card */}
+              <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-lg font-semibold">
+                      Category (Optional)
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Select a category to use your custom knowledge base
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useCategory}
+                      onChange={(e) => setUseCategory(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                {useCategory && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-3"
+                  >
+                    <select
+                      value={selectedCategoryId}
+                      onChange={(e) => setSelectedCategoryId(e.target.value)}
+                      className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 text-sm"
+                    >
+                      <option value="">-- Select a category --</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.displayName}
+                        </option>
+                      ))}
+                    </select>
+                    {selectedCategoryId && (
+                      <p className="text-xs text-blue-400">
+                        ✓ AI will use your{" "}
+                        {
+                          categories.find((c) => c.id === selectedCategoryId)
+                            ?.displayName
+                        }{" "}
+                        knowledge base
+                      </p>
+                    )}
+                    <Link
+                      href="/dashboard/categories"
+                      className="text-xs text-slate-400 hover:text-white transition underline"
+                    >
+                      Manage categories & add training data →
+                    </Link>
+                  </motion.div>
+                )}
               </div>
 
               <button
